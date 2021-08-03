@@ -17,6 +17,7 @@ class Main:
         self.restart = False
         self.winFound = False
         self.level = None
+        self.computerSide = "x"
         
         
     def createTable(self):
@@ -65,10 +66,11 @@ class Main:
        
         if winner:
             self.gameEnd = True
-            self.gameEndFont = self.settings.gameEndFont.render(f"{winner.upper()} won!", True, (self.settings.fontColor))
-        elif not winner and len(self.filledPositions) == 9:
-            self.gameEnd = "draw"
-            self.gameEndFont = self.settings.gameEndFont.render(f"It's a draw!", True, (self.settings.fontColor))
+            if winner == "tie":
+                self.gameEndFont = self.settings.gameEndFont.render(f"It's a draw!", True, (self.settings.fontColor))
+            else:
+                self.gameEndFont = self.settings.gameEndFont.render(f"{self.settings.sides[winner]} won!", True, (self.settings.fontColor))
+
  
     
     def checkColission(self, x, y):
@@ -97,60 +99,47 @@ class Main:
                 
                 
     def minimax(self, depth, isMaximising, side):
-        gameEnd = self.checkGameEnd()
-        if depth == 0:
-            if gameEnd == side:
-                return 1
-            elif gameEnd == self.settings.swapTurn[side]:
-                return -1
-            return 0
-        if gameEnd == side:
-            return 1
-        elif gameEnd == self.settings.swapTurn[side]:
-            return -1
+        result = self.checkGameEnd()
+        if result:
+            return self.settings.scores[result]
         
         moves = self.getPossibleMoves()
         
         if isMaximising:
-            bestMove = -1
+            bestMove = -9999
             for move in moves:
                 self.filledPositions.append([move[0], move[1], side])
                 newMove = self.minimax(depth - 1, not isMaximising, side)
                 self.moveBack(move, side)
-                print(newMove)
                 if newMove == 1:
                     return newMove
-                elif newMove >= bestMove:
-                    bestMove = newMove
+                bestMove = max(bestMove, newMove)
             return bestMove
         
         else:
-            bestMove = 1
+            bestMove = 9999
             for move in moves:
                 self.filledPositions.append([move[0], move[1], self.settings.swapTurn[side]])
                 newMove = self.minimax(depth - 1, not isMaximising, side)
                 self.moveBack(move, self.settings.swapTurn[side])
                 if newMove == -1:
                     return newMove
-                elif newMove <= bestMove:
-                    bestMove = newMove
+                bestMove = min(bestMove, newMove)
             return bestMove
                 
                 
     def minimaxRoot(self, depth, isMaximising, side):
         moves = self.getPossibleMoves()
-        bestMoveVal = - 1
+        bestMoveVal = -9999
         bestMove = None
         for move in moves:
             self.filledPositions.append([move[0], move[1], side])
             newMove = self.minimax(depth - 1, not isMaximising, side)
             self.moveBack(move, side)
-            #print(newMove)
             if newMove == 1:
                 return move
             elif newMove >= bestMoveVal:
                     bestMoveVal = newMove
-                    print(move, " BETTER")
                     bestMove = move
         return bestMove
             
@@ -244,6 +233,9 @@ class Main:
                         break
             if figureCounter == 3:
                 return team
+            
+        if len(self.filledPositions) == 9:
+            return "tie"
         return False
                     
     
@@ -264,20 +256,18 @@ class Main:
     
     
     
-    
     def events(self):
+        if self.turn == self.computerSide:
+            if not self.gameEnd:
+                if len(self.figures) < 9:
+                    self.computerMove(self.computerSide, self.level)
+                    
         for event in p.event.get():
             if event.type == p.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if not self.gameEnd:
                         self.makeMove(event.pos[0], event.pos[1])
-                        if len(self.figures) < 9:
-                            self.computerMove("o", self.level)
-                            print(self.filledPositions)
-                            break
-               
-               
-                
+                        
             elif event.type == p.QUIT:
                 self.active = False
                 
@@ -288,7 +278,6 @@ class Main:
                     self.restart = True
     
     def run(self):
-        
        
         ### BG
         self.screen.fill(self.settings.bgColor)
@@ -301,8 +290,6 @@ class Main:
             self.screen.blit(self.gameEndFont, (self.screen.get_width() / 3, self.screen.get_height() / 3))
         ### BOARD
         self.createTable()
-        
-        
         
         
         p.display.flip()

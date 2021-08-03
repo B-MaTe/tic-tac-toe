@@ -17,6 +17,16 @@ class Settings:
         self.fontColor = (27, 22, 156)
         p.font.init()
         self.gameEndFont = p.font.SysFont("leelawadeeuisemilight", self.fontSize, True, True)
+        self.scores = {
+            "x" : 1,
+            "o" : -1,
+            "tie" : 0
+        }
+        
+        self.sides = {
+            "x" : "MSZP",
+            "o" : "FIDESZ"
+        }
         
         
     def setWH(self, w, h):
