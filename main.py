@@ -17,7 +17,7 @@ class Main:
         self.restart = False
         self.winFound = False
         self.level = None
-        self.computerSide = "x"
+        self.computerSide = self.settings.computerSide
         
         
     def createTable(self):
@@ -191,21 +191,15 @@ class Main:
         ### DIAGONALS
         team = None
         figureCounter = 0
-        diagonal = None
-        for pos in self.filledPositions:
-            if [pos[0], pos[1]] == [0,0]:
-                ### LEFT TO RIGHT DIAGONAL
-                diagonal = "LtoR"
-                figureCounter += 1
-                team = pos[-1]
-                break
-            elif [pos[0], pos[1]] == [2,0]:
-                ### RIGHT TO LELT DIAGONAL
-                diagonal = "RtoL"
-                figureCounter += 1
-                team = pos[-1]
-                break
-        if diagonal == "LtoR":
+        foundL = False
+        if [0,0, 'x'] in self.filledPositions:
+            team = "x"
+            foundL = True
+        elif [0,0, 'o'] in self.filledPositions:
+            team = "o"
+            foundL = True
+            ### LEFT TO RIGHT DIAGONAL
+        if foundL:
             for pos in self.filledPositions:
                 if [pos[0], pos[1]] == [1,1]:
                     if pos[-1] == team:
@@ -217,9 +211,18 @@ class Main:
                         figureCounter += 1
                     else:
                         break
-            if figureCounter == 3:
+            if figureCounter == 2:
                 return team
-        elif diagonal == "RtoL":
+        figureCounter = 0
+        foundR = False
+        if [2,0, 'x'] in self.filledPositions:
+            team = "x"
+            foundR = True
+        elif [2,0, 'o'] in self.filledPositions:
+            team = "o"
+            foundR = True
+            ### RIGHT TO LELT DIAGONAL
+        if foundR:
             for pos in self.filledPositions:
                 if [pos[0], pos[1]] == [1,1]:
                     if pos[-1] == team:
@@ -231,7 +234,7 @@ class Main:
                         figureCounter += 1
                     else:
                         break
-            if figureCounter == 3:
+            if figureCounter == 2:
                 return team
             
         if len(self.filledPositions) == 9:

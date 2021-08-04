@@ -9,6 +9,7 @@ class Settings:
         self.bgColor = (200,200,200)
         self.lineColor = (0, 0, 0)
         self.lineW = 5
+        self.computerSide = "o"
         self.swapTurn = {
             "o" : "x",
             "x" : "o"
@@ -18,8 +19,8 @@ class Settings:
         p.font.init()
         self.gameEndFont = p.font.SysFont("leelawadeeuisemilight", self.fontSize, True, True)
         self.scores = {
-            "x" : 1,
-            "o" : -1,
+            str(self.computerSide) : 1,
+            str(self.swapTurn[self.computerSide]) : -1,
             "tie" : 0
         }
         
